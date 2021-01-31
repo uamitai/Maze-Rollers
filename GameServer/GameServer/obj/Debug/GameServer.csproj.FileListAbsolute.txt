@@ -1,0 +1,11 @@
+C:\Users\USER\Desktop\unity\Cyber Final Project\GameServer\GameServer\obj\Debug\GameServer.csprojAssemblyReference.cache
+C:\Users\USER\Desktop\unity\Cyber Final Project\GameServer\GameServer\obj\Debug\GameServer.Properties.Resources.resources
+C:\Users\USER\Desktop\unity\Cyber Final Project\GameServer\GameServer\obj\Debug\GameServer.csproj.GenerateResource.cache
+C:\Users\USER\Desktop\unity\Cyber Final Project\GameServer\GameServer\obj\Debug\GameServer.csproj.CoreCompileInputs.cache
+C:\Users\USER\Desktop\unity\Cyber Final Project\GameServer\GameServer\bin\Debug\GameServer.exe.config
+C:\Users\USER\Desktop\unity\Cyber Final Project\GameServer\GameServer\bin\Debug\GameServer.exe
+C:\Users\USER\Desktop\unity\Cyber Final Project\GameServer\GameServer\bin\Debug\GameServer.pdb
+C:\Users\USER\Desktop\unity\Cyber Final Project\GameServer\GameServer\obj\Debug\GameServer.exe
+C:\Users\USER\Desktop\unity\Cyber Final Project\GameServer\GameServer\obj\Debug\GameServer.pdb
+C:\Users\USER\Desktop\unity\Cyber Final Project\GameServer\GameServer\bin\Debug\GameDB.mdf
+C:\Users\USER\Desktop\unity\Cyber Final Project\GameServer\GameServer\bin\Debug\GameDB_log.ldf
