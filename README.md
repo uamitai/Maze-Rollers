@@ -1,5 +1,5 @@
 # Cyber-Final-Project
 
-game code at Assets
-server code at GameServer
-hope that covers it
+\n game code at Assets
+\n server code at GameServer
+\n hope that covers it
