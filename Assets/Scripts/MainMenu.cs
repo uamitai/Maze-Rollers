@@ -1,93 +1,167 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using Mirror;
 
 //create button and join input field script
 public class MainMenu : MonoBehaviour
 {
+    [SerializeField] private GameObject menuParent;
+    [SerializeField] private GameObject colourParent;
     [SerializeField] private InputField join;
     [SerializeField] private Text usernameText;
-    [SerializeField] private Text errorText;
+    [SerializeField] private Text errorTextMenu;
+    [SerializeField] private Text errorTextColours;
+    [SerializeField] private Image colour1Image;
+    [SerializeField] private Image colour2Image;
 
-    public static MainMenu inst;
-    private System.Random rand;
+    public static MainMenu singleton;
+    private bool fullScreen = true;
+    private int colour1, colour2;
 
-    private const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ123456789";
-    private const int roomNameLength = 5;
+    public static Color[] colours = { Color.blue, Color.cyan, Color.green, Color.yellow, Color.red, Color.magenta, Color.white, Color.gray, Color.black };
     private const string errorMsg = "Error: Can't communicate with server";
 
     // Start is called before the first frame update
     void Start()
     {
-        inst = this;
-        errorText.text = "";
+        singleton = this;
+        errorTextMenu.text = "";
+        errorTextColours.text = "";
+        DisplayColours();
 
-        if(ClientManager.inst.isLoggedIn)
+        //delete game manager
+        if (Game.singleton != null)
         {
-            //set username text
-            usernameText.text = "Signed in as: " + ClientManager.inst.playerUsername;
+            Destroy(Game.singleton.gameObject);
+            Game.singleton = null;
         }
+
+        //set username text
+        usernameText.text = "Signed in as: " + ClientManager.singleton.username;
     }
 
     void Update()
     {
         if (Input.GetKeyDown("escape"))
         {
-            Application.Quit();
+            fullScreen = !fullScreen;
+            Screen.fullScreen = fullScreen;
         }
     }
 
+    #region EnterRoom
+
+    //become host and open a room
     public void CreateRoom()
     {
         if(!Client.isConnected)
         {
-            SetErrorText(errorMsg);
+            SetErrorTextMenu(errorMsg);
             Client.Connect();
             return;
         }
 
-        //generate and set room ID
-        RoomManager.roomID = GetRoomID(roomNameLength);
-
-        //register room at server
-        ClientSend.StartHost(RoomManager.roomID);
+        //send command to open room
+        ClientSend.OpenRoom();
     }
 
+    //send request for room host's IP
     public void JoinRoom()
     {
         if (!Client.isConnected)
         {
-            SetErrorText(errorMsg);
+            SetErrorTextMenu(errorMsg);
             Client.Connect();
             return;
         }
 
         //take user input and request host IP
         ClientSend.RequestRoomID(join.text.ToUpper());
-        SetErrorText("");
+        SetErrorTextMenu("");
     }
 
-    public void SetErrorText(string text)
+    public void SetErrorTextMenu(string text)
     {
-        inst.errorText.text = text;
+        singleton.errorTextMenu.text = text;
     }
 
-    public string GetRoomID(int nameLength)
-    {
-        //return a random string of given length
-        rand = new System.Random();
-        string roomName = "";
+    #endregion
+    #region PickColours
 
-        for (int i = 0; i < nameLength; i++)
+    public void ToggleScreen()
+    {
+        colourParent.SetActive(menuParent.activeSelf);
+        menuParent.SetActive(!menuParent.activeSelf);
+
+        errorTextMenu.text = "";
+        errorTextColours.text = "";
+
+        DisplayColours();
+    }
+
+    public void Colour1Left()
+    {
+        colour1 -= 1;
+        if(colour1 < 0)
         {
-            roomName += chars[rand.Next(chars.Length)];
+            colour1 = colours.Length - 1;
         }
-
-        return roomName;
+        colour1Image.color = colours[colour1];
     }
+
+    public void Colour1Right()
+    {
+        colour1 += 1;
+        if (colour1 >= colours.Length)
+        {
+            colour1 = 0;
+        }
+        colour1Image.color = colours[colour1];
+    }
+
+    public void Colour2Left()
+    {
+        colour2 -= 1;
+        if (colour2 < 0)
+        {
+            colour2 = colours.Length - 1;
+        }
+        colour2Image.color = colours[colour2];
+    }
+
+    public void Colour2Right()
+    {
+        colour2 += 1;
+        if (colour2 >= colours.Length)
+        {
+            colour2 = 0;
+        }
+        colour2Image.color = colours[colour2];
+    }
+
+    void DisplayColours()
+    {
+        colour1 = ClientManager.singleton.colour1;
+        colour2 = ClientManager.singleton.colour2;
+        colour1Image.color = colours[colour1];
+        colour2Image.color = colours[colour2];
+    }
+
+    public void ApplyColours()
+    {
+        ClientManager.singleton.colour1 = colour1;
+        ClientManager.singleton.colour2 = colour2;
+        ClientSend.SetColours(colour1, colour2);
+    }
+
+    public void SetErrorTextColours(string msg)
+    {
+        errorTextColours.text = msg;
+    }
+
+    #endregion
 
     public void LogOut()
     {
-        ClientManager.inst.LogOut();
+        ClientManager.singleton.LogOut();
     }
 }

@@ -4,7 +4,29 @@ using Mirror;
 
 public class RoomManager : NetworkRoomManager
 {
-    public static string roomID;
+    public static new RoomManager singleton;
+
+    public string roomID;
+
+    //room settings
+    public Mode gameMode;
+    public int gameTime;
+    public float catchDistance;
+    public float staminaRate;
+
+    public override void Awake()
+    {
+        base.Awake();
+        if(singleton == null)
+        {
+            singleton = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     public override void OnClientDisconnect(NetworkConnection conn)
     {
@@ -15,5 +37,13 @@ public class RoomManager : NetworkRoomManager
 
         //move to title scene
         SceneManager.LoadScene(offlineScene);
+    }
+
+    public override void OnRoomClientAddPlayerFailed()
+    {
+        base.OnRoomClientAddPlayerFailed();
+
+        //display message accordingly
+        MainMenu.singleton.SetErrorTextMenu("Error: Failed to connect to room");
     }
 }

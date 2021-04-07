@@ -12,7 +12,7 @@ namespace GameServer
             Server.clients[clientID].tcp.SendData(packet);
         }
 
-        //create and send a welcome packet
+        //welcome packet
         public static void Welcome(int cliendID, string msg)
         {
             //create
@@ -27,14 +27,16 @@ namespace GameServer
             packet.Dispose();
         }
 
-        public static void ValidRoomID(int clientID, bool valid)
+        //send player his room code
+        public static void GetRoomID(int clientID, string roomID)
         {
-            Packet packet = new Packet((int)ServerPackets.validRoomID);
-            packet.Write(valid);
+            Packet packet = new Packet((int)ServerPackets.getRoomID);
+            packet.Write(roomID);
             TcpSendData(clientID, packet);
             packet.Dispose();
         }
 
+        //send IP of host
         public static void GetHostIP(int clientID, string hostIP)
         {
             Packet packet = new Packet((int)ServerPackets.getHostIP);
@@ -43,27 +45,32 @@ namespace GameServer
             packet.Dispose();
         }
 
-        public static void RoomNotFound(int clientID)
+        //grant access to user account
+        public static void LoginResponse(int clientID, bool valid, string error, int colour1, int colour2)
         {
-            Packet packet = new Packet((int)ServerPackets.roomNotFound);
+            Packet packet = new Packet((int)ServerPackets.loginResponse);
+            packet.Write(valid);
+            packet.Write(error);
+            packet.Write(colour1);
+            packet.Write(colour2);
             TcpSendData(clientID, packet);
             packet.Dispose();
         }
 
-        public static void ValidLogin(int clientID, bool valid, string error)
+        //response packet to register
+        public static void RegisterResponse(int clientID, bool valid, string error)
         {
-            Packet packet = new Packet((int)ServerPackets.validLogin);
+            Packet packet = new Packet((int)ServerPackets.registerResponse);
             packet.Write(valid);
             packet.Write(error);
             TcpSendData(clientID, packet);
             packet.Dispose();
         }
 
-        public static void ValidRegister(int clientID, bool valid, string error)
+        public static void ColourResponse(int clientID, bool valid)
         {
-            Packet packet = new Packet((int)ServerPackets.validRegister);
+            Packet packet = new Packet((int)ServerPackets.colourResponse);
             packet.Write(valid);
-            packet.Write(error);
             TcpSendData(clientID, packet);
             packet.Dispose();
         }

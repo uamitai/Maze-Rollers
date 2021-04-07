@@ -907,6 +907,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   loggedInScene: Assets/Scenes/Title.unity
   loggedOutScene: Assets/Scenes/Login.unity
+  playerUsername: 
+  isLoggedIn: 0
+  colour1: 0
+  colour2: 4
+  gameMode: 0
+  gameTime: 180
+  runSpeed: 5
+  catchDistance: 2
+  staminaRate: 20
 --- !u!4 &377428629
 Transform:
   m_ObjectHideFlags: 0
@@ -1364,8 +1373,8 @@ Camera:
   m_GameObject: {fileID: 791172129}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.27058825, g: 0.27058825, b: 0.27058825, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0.12156863, b: 0.24705882, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0

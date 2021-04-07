@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Collections;
 using Mirror;
 
 public class ClientManager : MonoBehaviour
@@ -8,19 +7,16 @@ public class ClientManager : MonoBehaviour
     [Scene] [SerializeField] private string loggedInScene;
     [Scene] [SerializeField] private string loggedOutScene;
 
-    public static ClientManager inst;
+    public static ClientManager singleton;
 
-    public string playerUsername { get; protected set; }
-    private string playerPassword = "";
-    public bool isLoggedIn { get; protected set; }
-
-    private const float timeToLive = 5;
+    public string username;
+    public int colour1 = 0, colour2 = 4;
 
     private void Awake()
     {
-        if (inst == null)
+        if (singleton == null)
         {
-            inst = this;
+            singleton = this;
             DontDestroyOnLoad(gameObject);
         }
         else
@@ -42,35 +38,25 @@ public class ClientManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if(inst == this)
+        if(singleton == this)
         {
             Client.Disconnect();
         }
     }
 
-    public void LogIn(string username, string password)
+    public void LogIn(string username)
     {
-        if (!isLoggedIn)
-        {
-            playerUsername = username;
-            playerPassword = password;
-            isLoggedIn = true;
+        this.username = username;
 
-            Debug.Log("Signed in as " + username);
-            SceneManager.LoadScene(loggedInScene);
-        }
+        Debug.Log("Signed in as " + username);
+        SceneManager.LoadScene(loggedInScene);
     }
 
     public void LogOut()
     {
-        if (isLoggedIn)
-        {
-            playerUsername = "";
-            playerPassword = "";
-            isLoggedIn = false;
+        username = "";
 
-            Debug.Log("Signed out");
-            SceneManager.LoadScene(loggedOutScene);
-        }
+        Debug.Log("Signed out");
+        SceneManager.LoadScene(loggedOutScene);
     }
 }

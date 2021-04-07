@@ -1,74 +1,94 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 //player's basic movement, camera, etc.
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private float speed;
-    [SerializeField] private float rotSpeed;
-    [SerializeField] private Transform cam;
-    [SerializeField] private float camRotLimit;
+    [SerializeField] public float speed;
+    [SerializeField] private float rotationSpeed;
+    [SerializeField] private float camLimit;
     [SerializeField] private float rollSpeed;
+    [SerializeField] private Transform model;
 
-    private Transform model;
+    //stamina
+    [SerializeField] public float staminaSpeed;
+    [SerializeField] private float speedMultiplier;
+    private float stamina;
+
     private Rigidbody rb;
-    private float mouseX, mouseY, xRot;
+    private float mouseX, rotation;
     private Vector3 x, z, vel;
+    private const float maxStamina = 100;
 
     // Start is called before the first frame update
     void Start()
     {
-        model = transform.GetChild(0);
+        stamina = maxStamina;
         rb = GetComponent<Rigidbody>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if(PlayerUI.pauseOn)
+        if (Player.UI.pauseOn || !GetComponent<Player>().isAlive)
         {
-            //unlock mouse
-            Cursor.lockState = CursorLockMode.None;
-
             //player cannot move on pause
             return;
         }
 
-        //lock mouse
-        Cursor.lockState = CursorLockMode.Locked;
+        GetInput();
 
-        //get movement inputs
-        x = transform.right * Input.GetAxisRaw("Horizontal");
-        z = transform.forward * Input.GetAxisRaw("Vertical");
+        //combine axes for velocity
+        vel = (x + z).normalized * speed; 
 
-        //combine for velocity
-        vel = (x + z).normalized * speed;
+        //sprint
+        if(Input.GetButton("Jump") && vel != Vector3.zero && stamina >= 5)
+        {
+            vel *= speedMultiplier;
+            stamina -= 2 * staminaSpeed * Time.deltaTime;
+        }
+        else
+        {
+            stamina += staminaSpeed * Time.deltaTime;
+        }
 
-        //get rotation inputs
-        mouseX = Input.GetAxisRaw("Mouse X") * rotSpeed * Time.deltaTime;
-        mouseY = Input.GetAxisRaw("Mouse Y") * rotSpeed * Time.deltaTime;
-
-        xRot -= mouseY;
-        xRot = Mathf.Clamp(xRot, -camRotLimit, camRotLimit);
+        rotation = Mathf.Clamp(rotation, -camLimit, camLimit); //clamp rotation
+        stamina = Mathf.Clamp(stamina, 0f, maxStamina);        //clamp stamina
     }
 
     void FixedUpdate()
     {
-        if (PlayerUI.pauseOn)
+        if(Player.UI.pauseOn || !GetComponent<Player>().isAlive)
         {
             //player cannot move on pause
             return;
         }
 
-        //add v * dt to current pos
+        Move();
+
+        //updare stamina meter
+        Player.UI.SetStamina(stamina / maxStamina);
+    }
+
+    void GetInput()
+    {
+        //movement inputs
+        x = transform.right * Input.GetAxisRaw("Horizontal");
+        z = transform.forward * Input.GetAxisRaw("Vertical");
+
+        //rotation inputs
+        mouseX = Input.GetAxisRaw("Mouse X") * rotationSpeed * Time.deltaTime;
+        rotation -= Input.GetAxisRaw("Mouse Y") * rotationSpeed * Time.deltaTime;
+    }
+
+    void Move()
+    {
+        //move
         rb.MovePosition(rb.position + vel * Time.fixedDeltaTime);
 
         //roll ball
-        model.Rotate(new Vector3(vel.z, 0f, -vel.x) * rollSpeed * Time.fixedDeltaTime, Space.World);
+        model.Rotate(new Vector3(vel.z, 0f, -vel.x) * rollSpeed * vel.magnitude * Time.fixedDeltaTime, Space.World);
 
         //rotate camera
-        cam.localRotation = Quaternion.Euler(xRot, 0f, 0f);
+        Player.localPlayer.cam.localRotation = Quaternion.Euler(rotation, 0f, 0f);
 
         //rotate player
         transform.Rotate(Vector3.up * mouseX);

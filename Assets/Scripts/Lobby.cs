@@ -9,35 +9,46 @@ public class Lobby : NetworkBehaviour
     [Scene] [SerializeField] private string gameScene;
 
     [SerializeField] private GameObject startButton;
+    [SerializeField] private GameObject lobbyMenu;
+    [SerializeField] private GameObject settingsMenu;
+    [SerializeField] private GameObject settingsButton;
+    [SerializeField] private GameObject playerListItemPrefab;
+
     [SerializeField] private Text roomName;
     [SerializeField] private Text playerCount;
     [SerializeField] private Transform playerListParent;
-    [SerializeField] private GameObject playerListItemPrefab;
 
     public SyncList<string> players = new SyncList<string>();
     [SyncVar] private string roomID;
     [SyncVar] private int maxConns;
 
-    public static Lobby inst;
+    public static Lobby singleton;
 
     private NetworkManager manager;
     private List<GameObject> playerList;
+    private bool fullScreen = true;
+    private bool lobbyActive = true;
 
     // Start is called before the first frame update
     void Start()
     {
-        inst = this;
+        singleton = this;
         manager = NetworkManager.singleton;
         playerList = new List<GameObject>();
 
         if(isServer)
         {
-            roomID = RoomManager.roomID;
-            maxConns = manager.maxConnections + 1;
+            roomID = RoomManager.singleton.roomID;
+            maxConns = manager.maxConnections;
+        }
+        else
+        {
+            lobbyMenu.SetActive(true);
         }
 
         //only host can view start button
         startButton.SetActive(isServer);
+        settingsButton.SetActive(isServer);
         roomName.text = "ROOM CODE: " + roomID;
 
         players.Callback += OnlistChange;
@@ -47,7 +58,8 @@ public class Lobby : NetworkBehaviour
     {
         if (Input.GetKeyDown("escape"))
         {
-            Back();
+            fullScreen = !fullScreen;
+            Screen.fullScreen = fullScreen;
         }
     }
 
@@ -58,9 +70,9 @@ public class Lobby : NetworkBehaviour
         RefreshPlayerList();
     }
 
+    //builds and rebuilds the player list UI
     private void RefreshPlayerList()
     {
-        Debug.Log("refreshing player list...");
         if(playerCount != null)
         {
             //update player count
@@ -92,7 +104,7 @@ public class Lobby : NetworkBehaviour
     private void ExitRoom()
     {
         //remove local player from player list on server
-        LobbyPlayer.localPlayer.CmdRemovePlayer(ClientManager.inst.playerUsername);
+        LobbyPlayer.localPlayer.CmdRemovePlayer(Client.clientID, ClientManager.singleton.username);
 
         //only host can close room
         if (isServer)
@@ -107,9 +119,10 @@ public class Lobby : NetworkBehaviour
     }
 
 
-    public void StartGame()
+    [Server] public void StartGame()
     {
-        ExitRoom();
+        ClientSend.CloseRoom(roomID);
+        Game.singleton.StartGame();
         manager.ServerChangeScene(gameScene);
     }
 
@@ -117,5 +130,12 @@ public class Lobby : NetworkBehaviour
     {
         ExitRoom();
         manager.StopHost();
+    }
+
+    public void ToggleSettings()
+    {
+        lobbyActive = !lobbyActive;
+        lobbyMenu.SetActive(lobbyActive);
+        settingsMenu.SetActive(!lobbyActive);
     }
 }

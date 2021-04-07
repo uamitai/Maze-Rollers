@@ -1,29 +1,28 @@
 ﻿using System;
 using System.Text;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 /// <summary>Sent from server to client.</summary>
 public enum ServerPackets
 {
     welcome = 1,
-    validRoomID = 2,
+    getRoomID = 2,
     getHostIP = 3,
-    roomNotFound = 4,
-    validLogin = 5,
-    validRegister = 6
+    loginResponse = 4,
+    registerResponse = 5,
+    colourResponse = 6
 }
 
 /// <summary>Sent from client to server.</summary>
 public enum ClientPackets
 {
-    welcomeReceived = 1,
-    startHost = 2,
+    welcomeResponse = 1,
+    openRoom = 2,
     requestHostIP = 3,
     closeRoom = 4,
     loginUser = 5,
-    registerUser = 6
+    registerUser = 6,
+    setColours = 7
 }
 
 public class Packet : IDisposable

@@ -17,4 +17,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Testing.unity
     guid: 16a4037454789d842a26cd12cc4dfd9c
+  - enabled: 1
+    path: Assets/Scenes/PacMan.unity
+    guid: b6a75455e0da17547b964e181b691b98
+  - enabled: 1
+    path: Assets/Scenes/Disconnected.unity
+    guid: 91a9e56306d7c0d459d23c4e49846040
   m_configObjects: {}

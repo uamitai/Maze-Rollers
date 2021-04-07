@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Net.Sockets;
 
-public class Client
+public static class Client
 {
-    public static Client inst;
     public static TCP tcp;
-    public static int id;
+    public static int clientID;
 
-    public static string ip = "192.168.14.14";
+    public static string ip = "79.181.190.138";
     public static int port = 420;
     public static int dataBufferSize = 4096;
 
@@ -30,11 +29,11 @@ public class Client
         onPacketReceive = new Dictionary<int, PacketManager>()
         {
             { (int)ServerPackets.welcome, ClientReceive.Welcome },
-            { (int)ServerPackets.validRoomID, ClientReceive.ValidRoomID },
+            { (int)ServerPackets.getRoomID, ClientReceive.GetRoomID },
             { (int)ServerPackets.getHostIP, ClientReceive.GetHostIP },
-            { (int)ServerPackets.roomNotFound, ClientReceive.RoomNotFound },
-            { (int)ServerPackets.validLogin, ClientReceive.ValidLogin },
-            { (int)ServerPackets.validRegister, ClientReceive.ValidRegister }
+            { (int)ServerPackets.loginResponse, ClientReceive.LoginResponse },
+            { (int)ServerPackets.registerResponse, ClientReceive.RegisterResponse },
+            { (int)ServerPackets.colourResponse, ClientReceive.ColourResponse }
         };
     }
 

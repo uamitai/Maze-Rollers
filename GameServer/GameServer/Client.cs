@@ -10,16 +10,12 @@ namespace GameServer
         public int id;
         public TCP tcp;
         public string ip;
+        public int accountID;
 
         public Client(int _id)
         {
             id = _id;
             tcp = new TCP(id);
-        }
-
-        public void SetIP()
-        {
-            ip = tcp.socket.Client.RemoteEndPoint.ToString();
         }
 
         private void Disconnect()
@@ -42,6 +38,7 @@ namespace GameServer
                 id = _id;
             }
 
+            //creates object to handle client
             public void Connect(TcpClient _socket)
             {
                 socket = _socket;
@@ -59,6 +56,7 @@ namespace GameServer
                 ServerSend.Welcome(id, "Connected to server");
             }
 
+            //sends a packet to the client
             public void SendData(Packet packet)
             {
                 try
@@ -76,6 +74,7 @@ namespace GameServer
                 }
             }
 
+            //async callback to receive packet
             private void ReceiveCallback(IAsyncResult result)
             {
                 try
@@ -105,6 +104,7 @@ namespace GameServer
                 }
             }
 
+            //reads packet
             //returns if packet should be reset
             private bool HandleData(byte[] data)
             {

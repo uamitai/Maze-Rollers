@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using System.Collections;
 using UnityEngine.UI;
 using System.Text;
 using System.Security.Cryptography;
@@ -8,6 +7,7 @@ using System.Security.Cryptography;
 public class LoginMenu : MonoBehaviour {
 
     public static LoginMenu inst;
+    private bool fullScreen = true;
 
     private const string errorMsg = "Error: Can't communicate with server";
 
@@ -37,14 +37,16 @@ public class LoginMenu : MonoBehaviour {
     void Awake()
     {
         ResetAllUIElements();
+        Screen.fullScreen = true;
         inst = this;
     }
 
     void Update()
     {
-        if (Input.GetKey("escape"))
+        if (Input.GetKeyDown("escape"))
         {
-            Application.Quit();
+            fullScreen = !fullScreen;
+            Screen.fullScreen = fullScreen;
         }
     }
 
@@ -81,20 +83,36 @@ public class LoginMenu : MonoBehaviour {
         {
             if (playerPassword.Length > 5)
             {
-                //Username and password seem reasonable. Change UI to 'Loading...'. Start the Coroutine which tries to log the player in.
-                loginParent.gameObject.SetActive(false);
-                loadingParent.gameObject.SetActive(true);
-                ClientSend.LoginUser(playerUsername, Encrypt(playerPassword));
+                if (!playerUsername.Contains("'"))
+                {
+                    if(!playerPassword.Contains("'"))
+                    {
+                        //Username and password seem reasonable. Change UI to 'Loading...'. Start the Coroutine which tries to log the player in.
+                        loginParent.gameObject.SetActive(false);
+                        loadingParent.gameObject.SetActive(true);
+                        ClientSend.LoginUser(playerUsername, Encrypt(playerPassword));
+                    }
+                    else
+                    {
+                        //password cannot contain sql injection characters
+                        Login_ErrorText.text = "Error: Password invalid";
+                    }
+                }
+                else
+                {
+                    //username cannot contain sql injection characters
+                    Login_ErrorText.text = "Error: Username invalid";
+                }
             }
             else
             {
                 //Password too short so it must be wrong
-                Login_ErrorText.text = "Error: Password Invalid";
+                Login_ErrorText.text = "Error: Password too short";
             }
         } else
         {
             //Username too short so it must be wrong
-            Login_ErrorText.text = "Error: Username Invalid";
+            Login_ErrorText.text = "Error: Username too short";
         }
     }
 
@@ -129,10 +147,26 @@ public class LoginMenu : MonoBehaviour {
                 //Check the two passwords entered match
                 if (playerPassword == confirmedPassword)
                 {
-                    //Username and passwords seem reasonable. Switch to 'Loading...' and start the coroutine to try and register an account on the server
-                    registerParent.gameObject.SetActive(false);
-                    loadingParent.gameObject.SetActive(true);
-                    ClientSend.RegisterUser(playerUsername, Encrypt(playerPassword));
+                    if (!playerUsername.Contains("'"))
+                    {
+                        if (!playerPassword.Contains("'"))
+                        {
+                            //Username and passwords seem reasonable. Switch to 'Loading...' and start the coroutine to try and register an account on the server
+                            registerParent.gameObject.SetActive(false);
+                            loadingParent.gameObject.SetActive(true);
+                            ClientSend.RegisterUser(playerUsername, Encrypt(playerPassword));
+                        }
+                        else
+                        {
+                            //password cannot contain sql injection characters
+                            Login_ErrorText.text = "Error: Password invalid";
+                        }
+                    }
+                    else
+                    {
+                        //username cannot contain sql injection characters
+                        Login_ErrorText.text = "Error: Username invalid";
+                    }
                 }
                 else
                 {

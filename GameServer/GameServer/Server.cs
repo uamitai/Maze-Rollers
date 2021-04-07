@@ -18,6 +18,7 @@ namespace GameServer
 
         private static TcpListener listener;
 
+        //start the server
         public static void Start(int _port, int _maxConns)
         {
             port = _port;
@@ -27,18 +28,18 @@ namespace GameServer
             listener = new TcpListener(IPAddress.Any, port);
             listener.Start();
 
-            Console.WriteLine("server started");
             InitData();
+            Console.WriteLine("server started");
 
             //accept incoming connections
             listener.BeginAcceptTcpClient(new AsyncCallback(TcpConnectCallback), null);
         }
 
+        //async callback to handle incoming connections
         private static void TcpConnectCallback(IAsyncResult result)
         {
             //connect client
             TcpClient client = listener.EndAcceptTcpClient(result);
-            Console.WriteLine($"connection from {client.Client.RemoteEndPoint}");
 
             //continue accepting connections
             listener.BeginAcceptTcpClient(new AsyncCallback(TcpConnectCallback), null);
@@ -50,7 +51,6 @@ namespace GameServer
                 if (clients[i + 1].tcp.socket == null)
                 {
                     clients[i + 1].tcp.Connect(client);
-                    clients[i + 1].SetIP();
                     return;
                 }
             }
@@ -70,12 +70,13 @@ namespace GameServer
             //commands
             onPacketReceive = new Dictionary<int, PacketManager>()
             {
-                { (int)ClientPackets.welcomeReceived, ServerReceive.WelcomeReceived },
-                { (int)ClientPackets.startHost, ServerReceive.StartHost },
+                { (int)ClientPackets.welcomeResponse, ServerReceive.WelcomeReceived },
+                { (int)ClientPackets.openRoom, ServerReceive.StartHost },
                 { (int)ClientPackets.requestHostIP, ServerReceive.RequestHostIP },
                 { (int)ClientPackets.closeRoom, ServerReceive.CloseRoom },
                 { (int)ClientPackets.loginUser, ServerReceive.LoginUser },
-                { (int)ClientPackets.registerUser, ServerReceive.RegisterUser }
+                { (int)ClientPackets.registerUser, ServerReceive.RegisterUser },
+                { (int)ClientPackets.setColours, ServerReceive.SetColours }
             };
         }
     }
