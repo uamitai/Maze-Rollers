@@ -83,26 +83,10 @@ public class LoginMenu : MonoBehaviour {
         {
             if (playerPassword.Length > 5)
             {
-                if (!playerUsername.Contains("'"))
-                {
-                    if(!playerPassword.Contains("'"))
-                    {
-                        //Username and password seem reasonable. Change UI to 'Loading...'. Start the Coroutine which tries to log the player in.
-                        loginParent.gameObject.SetActive(false);
-                        loadingParent.gameObject.SetActive(true);
-                        ClientSend.LoginUser(playerUsername, Encrypt(playerPassword));
-                    }
-                    else
-                    {
-                        //password cannot contain sql injection characters
-                        Login_ErrorText.text = "Error: Password invalid";
-                    }
-                }
-                else
-                {
-                    //username cannot contain sql injection characters
-                    Login_ErrorText.text = "Error: Username invalid";
-                }
+                //Username and password seem reasonable. Change UI to 'Loading...'. Start the Coroutine which tries to log the player in.
+                loginParent.gameObject.SetActive(false);
+                loadingParent.gameObject.SetActive(true);
+                ClientSend.LoginUser(playerUsername, Hash(playerPassword));
             }
             else
             {
@@ -147,26 +131,10 @@ public class LoginMenu : MonoBehaviour {
                 //Check the two passwords entered match
                 if (playerPassword == confirmedPassword)
                 {
-                    if (!playerUsername.Contains("'"))
-                    {
-                        if (!playerPassword.Contains("'"))
-                        {
-                            //Username and passwords seem reasonable. Switch to 'Loading...' and start the coroutine to try and register an account on the server
-                            registerParent.gameObject.SetActive(false);
-                            loadingParent.gameObject.SetActive(true);
-                            ClientSend.RegisterUser(playerUsername, Encrypt(playerPassword));
-                        }
-                        else
-                        {
-                            //password cannot contain sql injection characters
-                            Login_ErrorText.text = "Error: Password invalid";
-                        }
-                    }
-                    else
-                    {
-                        //username cannot contain sql injection characters
-                        Login_ErrorText.text = "Error: Username invalid";
-                    }
+                    //Username and passwords seem reasonable. Switch to 'Loading...' and start the coroutine to try and register an account on the server
+                    registerParent.gameObject.SetActive(false);
+                    loadingParent.gameObject.SetActive(true);
+                    ClientSend.RegisterUser(playerUsername, Hash(playerPassword));
                 }
                 else
                 {
@@ -209,7 +177,7 @@ public class LoginMenu : MonoBehaviour {
         Register_ErrorText.text = text;
     }
 
-    static string Encrypt(string password)
+    static string Hash(string password)
     {
         //simple encrypting function
         MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();

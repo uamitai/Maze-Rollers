@@ -324,7 +324,7 @@ MonoBehaviour:
   mask:
     serializedVersion: 2
     m_Bits: 1335
-  crosshairBlack: {fileID: 21300000, guid: f82874985e1d1f542a15c8f982d6b857, type: 3}
+  crosshairBlack: {fileID: 21300000, guid: a111ff2af383991458c92498e3a7b42d, type: 3}
   crosshairRed: {fileID: 21300000, guid: c0d620bcf1161714d97c588dae362952, type: 3}
 --- !u!114 &9153327688532794966
 MonoBehaviour:

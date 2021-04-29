@@ -8,7 +8,7 @@ public static class Client
     public static TCP tcp;
     public static int clientID;
 
-    public static string ip = "79.181.190.138";
+    public static string ip = "79.178.199.212";
     public static int port = 420;
     public static int dataBufferSize = 4096;
 

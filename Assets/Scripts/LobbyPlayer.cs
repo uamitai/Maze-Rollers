@@ -16,13 +16,11 @@ public class LobbyPlayer : NetworkRoomPlayer
     {
         Debug.Log("added " + username);
         Lobby.singleton.players.Add(username);
-        Game.singleton.players.Add(clientID, username);
     }
 
     [Command] public void CmdRemovePlayer(int clientID, string username)
     {
         Debug.Log("removed " + username);
         Lobby.singleton.players.Remove(username);
-        Game.singleton.players.Remove(clientID);
     }
 }

@@ -70,14 +70,11 @@ public class Lobby : NetworkBehaviour
         RefreshPlayerList();
     }
 
-    //builds and rebuilds the player list UI
+    //builds the player list UI
     private void RefreshPlayerList()
     {
-        if(playerCount != null)
-        {
-            //update player count
-            playerCount.text = $"{players.Count}/{maxConns}";
-        }
+        //update player count
+        playerCount.text = $"{players.Count}/{maxConns}";
 
         //clear gameobject list
         foreach(GameObject listItem in playerList)
@@ -89,7 +86,7 @@ public class Lobby : NetworkBehaviour
         //rebuild list
         foreach(string playerName in players)
         {
-            //create item in lobby list
+            //create item and add to lobby list
             GameObject listItem = Instantiate(playerListItemPrefab);
             listItem.transform.SetParent(playerListParent);
             playerList.Add(listItem);
@@ -118,11 +115,10 @@ public class Lobby : NetworkBehaviour
         ExitRoom();
     }
 
-
     [Server] public void StartGame()
     {
         ClientSend.CloseRoom(roomID);
-        Game.singleton.StartGame();
+        Game.singleton.SetGameMode();
         manager.ServerChangeScene(gameScene);
     }
 

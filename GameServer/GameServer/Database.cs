@@ -19,7 +19,7 @@ namespace GameServer
             conn = new SqlConnection(connString);
             cmd = new SqlCommand(query, conn);
 
-            //init outs
+            //create out variables
             id = -1;
             password = "";
             colour1 = -1;
@@ -103,6 +103,7 @@ namespace GameServer
                 //close
                 cmd.Dispose();
                 conn.Close();
+
                 return true;
             }
             catch(Exception ex)

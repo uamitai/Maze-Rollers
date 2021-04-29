@@ -425,7 +425,6 @@ GameObject:
   - component: {fileID: 6427354095525298105}
   - component: {fileID: 6427354095525298102}
   - component: {fileID: 6427354095525298103}
-  - component: {fileID: 1605145770730092319}
   m_Layer: 5
   m_Name: UI
   m_TagString: Untagged
@@ -531,8 +530,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c45dddfb5b69db499760a652e713402, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncMode: 0
-  syncInterval: 0.1
   caughtScreen: {fileID: 6427354096783766965}
   pauseMenu: {fileID: 6427354097268895555}
   killFeed: {fileID: 6427354095330681892}
@@ -547,22 +544,6 @@ MonoBehaviour:
   disconnectScene: Assets/Scenes/Disconnected.unity
   crosshair: {fileID: 6427354096312247199}
   pauseOn: 0
---- !u!114 &1605145770730092319
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6427354095525298100}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneId: 0
-  serverOnly: 0
-  m_AssetId: 
-  hasSpawned: 0
 --- !u!1 &6427354095880971962
 GameObject:
   m_ObjectHideFlags: 0
@@ -909,7 +890,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.27058825, g: 0.27058825, b: 0.27058825, a: 1}
+  m_Color: {r: 0.011764706, g: 0.05882353, b: 0.30980393, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

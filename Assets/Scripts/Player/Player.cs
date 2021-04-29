@@ -7,7 +7,6 @@ public class Player : NetworkBehaviour
 {
     //player variables to sync
     [SyncVar] public bool isAlive;
-    [SyncVar] public int clientID;
     [SyncVar(hook = nameof(SetName))] public string username;
     [SyncVar(hook = nameof(SetCatcher))] public bool isCatcher;
     [SyncVar(hook = nameof(DisplayTime))] private float timeRemaining;
@@ -22,9 +21,8 @@ public class Player : NetworkBehaviour
     public static PlayerUI UI;
     public static Player localPlayer;
     public static Mode gameMode;
-
-    private Vector3 spawnPointPos;
-    private Quaternion spawnPointRot;
+    private static Game GameManager;
+    private SpawnPoint spawnPoint;
 
     private const string playerLayer = "RemotePlayer";
     private const string modelLayer = "DontDraw";
@@ -35,10 +33,8 @@ public class Player : NetworkBehaviour
         isAlive = false;
         Setup(true);
 
-        spawnPointPos = transform.position;
-        spawnPointRot = transform.rotation;
-
-        ClientManager manager = ClientManager.singleton;
+        GameManager = Game.singleton;
+        spawnPoint = new SpawnPoint(transform);
 
         if(isLocalPlayer)
         {
@@ -52,7 +48,7 @@ public class Player : NetworkBehaviour
             nameplate.gameObject.layer = LayerMask.NameToLayer(modelLayer);
 
             //set username
-            CmdSetName(Client.clientID, manager.username);
+            CmdSetName(ClientManager.singleton.username);
         }
         else
         {
@@ -64,9 +60,8 @@ public class Player : NetworkBehaviour
 
     void Update()
     {
-        //rotate name plate
-        nameplate.LookAt(nameplate.position + localPlayer.cam.rotation * Vector3.forward,
-            localPlayer.cam.rotation * Vector3.up);
+        //rotate name plate towards local player
+        nameplate.LookAt(nameplate.position + localPlayer.cam.rotation * Vector3.forward, localPlayer.cam.rotation * Vector3.up);
     }
 
     //called when all players are ready
@@ -76,7 +71,7 @@ public class Player : NetworkBehaviour
         localPlayer.GetComponent<PlayerController>().staminaSpeed = StaminaRate;
         localPlayer.GetComponent<PlayerCatch>().range = catchDistance;
 
-        StartCoroutine(UI.CountDown(msg));
+        StartCoroutine(UI.CountDown(_gameMode, msg));
 
         localPlayer.CmdSendColours(ClientManager.singleton.colour1, ClientManager.singleton.colour2);
     }
@@ -85,6 +80,8 @@ public class Player : NetworkBehaviour
     [Command] void CmdSendColours(int colour1, int colour2)
     {
         RpcRenderColours(MainMenu.colours[colour1], MainMenu.colours[colour2]);
+
+        isCatcher = (connectionToClient == GameManager.chosenPlayer) ^ (GameManager.gameMode == Mode.Reverse);
     }
 
     //apply colours on all clients
@@ -121,14 +118,10 @@ public class Player : NetworkBehaviour
     }
 
     //sync name for all players
-    [Command] void CmdSetName(int _clientID, string _username)
+    [Command] void CmdSetName(string _username)
     {
         username = _username;
-        clientID = _clientID;
-        Game.singleton.AddPlayer();
-
-        //iscatcher = xor between usernames match and reverse gamemode
-        isCatcher = (clientID == Game.singleton.chosenPlayer) ^ (Game.singleton.gameMode == Mode.Reverse);
+        GameManager.AddPlayer(connectionToClient, _username);
     }
 
     void SetColours(int colour1, int colour2)
@@ -157,11 +150,6 @@ public class Player : NetworkBehaviour
 
     #endregion
 
-    [Command] public void CmdLeaveRoom()
-    {
-        Game.singleton.OnPlayerDisconnect(clientID);
-    }
-
     [Server] public IEnumerator Timer(int time)
     {
         timeRemaining = time;
@@ -175,12 +163,16 @@ public class Player : NetworkBehaviour
         switch (gameMode)
         {
             case Mode.Classic:
-                msg = $"{Game.singleton.players[Game.singleton.chosenPlayer]} lost the match!";
+                msg = $"{GameManager.players[GameManager.chosenPlayer]} lost the match!";
                 break;
 
             case Mode.Reverse:
-                msg = $"{Game.singleton.players[Game.singleton.chosenPlayer]} won the match!";
+                msg = $"{GameManager.players[GameManager.chosenPlayer]} won the match!";
                 break;
+
+            case Mode.Elimination:
+                RpcOnGameEndElimination(false);
+                yield break;
         }
         RpcOnGameEnd(msg);
     }
@@ -236,9 +228,10 @@ public class Player : NetworkBehaviour
         RpcRespawn();
     }
 
-    [ClientRpc] void RpcRespawn()
+    [ClientRpc]
+    void RpcRespawn()
     {
-        if(gameMode != Mode.Elimination)
+        if (gameMode != Mode.Elimination)
         {
             Setup(true);
         }
@@ -249,19 +242,18 @@ public class Player : NetworkBehaviour
         EnableComponents(true);
 
         //write to kill feed
-        if(isCatcher && gameMode != Mode.Reverse)
+        if (isCatcher && gameMode != Mode.Reverse)
         {
             UI.AddKillToFeed($"{username} is now catcher");
         }
 
-        if(isLocalPlayer)
+        if (isLocalPlayer)
         {
             //lock mouse cursor
             Cursor.lockState = CursorLockMode.Locked;
         }
 
-        //place player at spawn point
-        transform.SetPositionAndRotation(spawnPointPos, spawnPointRot);
+        transform.SetPositionAndRotation(spawnPoint.position, spawnPoint.rotation);
     }
 
     [ClientRpc] public void RpcOnGameEnd(string msg)
@@ -269,22 +261,41 @@ public class Player : NetworkBehaviour
         //disable UI
         Cursor.lockState = CursorLockMode.None;
 
+        GameManager.disconnectText = msg;
+        NetworkManager.singleton.StopHost();
+    }
+
+    [ClientRpc] public void RpcOnGameEndElimination(bool catcherWon)
+    {
         //determine victory text if timer ran out on elimination
         string status = "";
-        if(gameMode == Mode.Elimination && msg != "GAME OVER")
+
+        if (localPlayer.isCatcher)
         {
-            if(localPlayer.isCatcher)
-            {
-                status = msg == "C" ? "won" : "lost";
-            }
-            else
-            {
-                status = localPlayer.model.activeSelf ? "won" : "lost";
-            }
-            msg = $"You {status} the match!";
+            status = catcherWon ? "won" : "lost";
+        }
+        else
+        {
+            status = localPlayer.model.activeSelf ? "won" : "lost";
         }
 
-        Game.singleton.disconnectText = msg;
+        //disable UI
+        Cursor.lockState = CursorLockMode.None;
+
+        GameManager.disconnectText = $"You {status} the match!";
         NetworkManager.singleton.StopHost();
+    }
+}
+
+//respawn player at initial transform
+class SpawnPoint
+{
+    public Vector3 position;
+    public Quaternion rotation;
+
+    public SpawnPoint(Transform t)
+    {
+        position = t.position;
+        rotation = t.rotation;
     }
 }

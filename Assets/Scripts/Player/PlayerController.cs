@@ -4,7 +4,7 @@
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] public float speed;
-    [SerializeField] private float rotationSpeed;
+    [SerializeField] private float mouseSensitivity;
     [SerializeField] private float camLimit;
     [SerializeField] private float rollSpeed;
     [SerializeField] private Transform model;
@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         stamina = maxStamina;
+        mouseSensitivity = RoomManager.singleton.mouseSensitivity * 2;
         rb = GetComponent<Rigidbody>();
     }
 
@@ -75,8 +76,8 @@ public class PlayerController : MonoBehaviour
         z = transform.forward * Input.GetAxisRaw("Vertical");
 
         //rotation inputs
-        mouseX = Input.GetAxisRaw("Mouse X") * rotationSpeed * Time.deltaTime;
-        rotation -= Input.GetAxisRaw("Mouse Y") * rotationSpeed * Time.deltaTime;
+        mouseX = Input.GetAxisRaw("Mouse X") * mouseSensitivity * Time.deltaTime;
+        rotation -= Input.GetAxisRaw("Mouse Y") * mouseSensitivity * Time.deltaTime;
     }
 
     void Move()

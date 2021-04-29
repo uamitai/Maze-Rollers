@@ -6,13 +6,13 @@ public class RoomManager : NetworkRoomManager
 {
     public static new RoomManager singleton;
 
+    [Header("Player Settings")]
     public string roomID;
-
-    //room settings
     public Mode gameMode;
     public int gameTime;
     public float catchDistance;
     public float staminaRate;
+    public float mouseSensitivity;
 
     public override void Awake()
     {
@@ -45,5 +45,15 @@ public class RoomManager : NetworkRoomManager
 
         //display message accordingly
         MainMenu.singleton.SetErrorTextMenu("Error: Failed to connect to room");
+    }
+
+    public override void OnServerDisconnect(NetworkConnection conn)
+    {
+        base.OnServerDisconnect(conn);
+
+        if(Game.singleton != null)
+        {
+            Game.singleton.OnPlayerDisconnect(conn);
+        }
     }
 }

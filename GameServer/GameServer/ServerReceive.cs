@@ -40,13 +40,13 @@ namespace GameServer
             }
         }
 
-        //register room code at dict
+        //let player open a lobby
         public static void StartHost(int clientID, Packet packet)
         {
-            string roomID = GenerateRoomID(ROOM_ID_LENGTH);
-
-            //add {ID, IP} to game dict
+            string roomID = GenerateRoomID();
             string hostIP = Server.clients[clientID].ip;
+
+            //add {room ID, player IP} to room dict
             Server.activeRooms.Add(roomID, hostIP);
             
             //send room ID
@@ -55,13 +55,13 @@ namespace GameServer
             Console.WriteLine($"{hostIP} started hosting with ID: {roomID}");
         }
 
-        //returns random string of given length
-        static string GenerateRoomID(int length)
+        //return random string
+        static string GenerateRoomID()
         {
             Random rand = new Random();
             string roomName = "";
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < ROOM_ID_LENGTH; i++)
             {
                 roomName += CHARACTERS[rand.Next(CHARACTERS.Length)];
             }
@@ -102,7 +102,6 @@ namespace GameServer
             Console.WriteLine($"{hostIP} closed room with ID: {roomID}");
         }
 
-        //find user info in DB
         public static void LoginUser(int clientID, Packet packet)
         {
             string username = packet.ReadString();
@@ -114,25 +113,32 @@ namespace GameServer
             int accountID, colour1, colour2;
             bool success = Database.GetData(out accountID, username, out real_password, out colour1, out colour2);
 
-            //exception at database
-            if(!success)
+            if(success)
             {
-                ServerSend.LoginResponse(clientID, false, "Couldn't fetch data. Please try again.", colour1, colour2);
-            }
-            //no results in database
-            else if(accountID == -1)
-            {
-                ServerSend.LoginResponse(clientID, false, "Error: Username invalid", colour1, colour2);
-            }
-            //result doesn't match user input
-            else if(real_password != password)
-            {
-                ServerSend.LoginResponse(clientID, false, "Error: Incorrect password", colour1, colour2);
+                if(accountID > -1)
+                {
+                    if(real_password == password)
+                    {
+                        //allow access to account
+                        Server.clients[clientID].accountID = accountID;
+                        ServerSend.LoginResponse(clientID, true, "", colour1, colour2);
+                    }
+                    else
+                    {
+                        //result doesn't match user input
+                        ServerSend.LoginResponse(clientID, false, "Error: Incorrect password", -1, -1);
+                    }
+                }
+                else
+                {
+                    //no results in database
+                    ServerSend.LoginResponse(clientID, false, "Error: Username invalid", colour1, colour2);
+                }
             }
             else
             {
-                Server.clients[clientID].accountID = accountID;
-                ServerSend.LoginResponse(clientID, true, "", colour1, colour2);
+                //exception at database
+                ServerSend.LoginResponse(clientID, false, "Couldn't fetch data. Please try again.", colour1, colour2);
             }
         }
 
@@ -147,31 +153,34 @@ namespace GameServer
             int accountID, colour1, colour2;
             bool success = Database.GetData(out accountID, username, out real_password, out colour1, out colour2);
 
-            //exception at database
-            if(!success)
+            if(success)
             {
-                ServerSend.RegisterResponse(clientID, false, "Couldn't complete operation. Please try again.");
-            }
-            //search in database
-            else if(accountID > -1)
-            {
-                ServerSend.RegisterResponse(clientID, false, "Error: User already exists");
-            }
-            //create user
-            else
-            {
-                success = Database.RegisterUser(username, password);
-                
-                if(success)
+                if(accountID == -1)
                 {
-                    Server.clients[clientID].accountID = accountID;
-                    Console.WriteLine($"{Server.clients[clientID].ip} registered user with username {username} and password {password}");
-                    ServerSend.RegisterResponse(clientID, true, "");
+                    //create user
+                    success = Database.RegisterUser(username, password);
+
+                    if (success)
+                    {
+                        Server.clients[clientID].accountID = accountID;
+                        Console.WriteLine($"{Server.clients[clientID].ip} registered user with username {username} and password {password}");
+                        ServerSend.RegisterResponse(clientID, true, "");
+                    }
+                    else
+                    {
+                        ServerSend.RegisterResponse(clientID, false, "Couldn't complete operation. Please try again.");
+                    }
                 }
                 else
                 {
-                    ServerSend.RegisterResponse(clientID, false, "Couldn't complete operation. Please try again.");
+                    //user exists in database
+                    ServerSend.RegisterResponse(clientID, false, "Error: User already exists");
                 }
+            }
+            else
+            {
+                //exception at database
+                ServerSend.RegisterResponse(clientID, false, "Couldn't complete operation. Please try again.");
             }
         }
 

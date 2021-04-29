@@ -8,12 +8,13 @@ public enum Mode
     Classic,
     Zombies,
     Elimination,
-    Reverse
+    Reverse,
+    Random
 }
 
 public class Game : MonoBehaviour
 {
-    public Dictionary<int, string> players = new Dictionary<int, string>();
+    public Dictionary<NetworkConnection, string> players = new Dictionary<NetworkConnection, string>();
 
     public static Game singleton;
 
@@ -24,9 +25,8 @@ public class Game : MonoBehaviour
     public StartCallback OnStartGame;
 
     public Mode gameMode;
-    private int playersReady;
     private System.Random rng;
-    public int chosenPlayer;
+    public NetworkConnection chosenPlayer;
     public string disconnectText;
     private RoomManager settings;
 
@@ -34,7 +34,6 @@ public class Game : MonoBehaviour
 
     void Awake()
     {
-        playersReady = 0;
         rng = new System.Random();
         OnStartGame = EmptyFunc;
         settings = RoomManager.singleton;
@@ -51,11 +50,16 @@ public class Game : MonoBehaviour
         }
     }
 
-    [Server] public void StartGame()
+    [Server] public void SetGameMode()
     {
-        //pick catcher from players
-        chosenPlayer = players.Keys.ElementAt(rng.Next(players.Count));
         gameMode = settings.gameMode;
+
+        //pick mode if random
+        if(gameMode == Mode.Random)
+        {
+            System.Array values = typeof(Mode).GetEnumValues();
+            gameMode = (Mode)values.GetValue(rng.Next(values.Length - 1));
+        }
 
         //set gamemode
         switch (gameMode)
@@ -84,28 +88,57 @@ public class Game : MonoBehaviour
 
     //called when player is ready
     //starts game when everyone is ready
-    public void AddPlayer()
+    public void AddPlayer(NetworkConnection conn, string username)
     {
-        playersReady++;
+        players.Add(conn, username);
 
         //start game
-        if(playersReady == players.Count)
+        if(players.Count == settings.numPlayers)
         {
-            string role = (gameMode == Mode.Reverse) ? "runner" : "catcher";
-            Player.localPlayer.RpcStartGame($"{players[chosenPlayer]} is the {role}!", gameMode, settings.catchDistance, settings.staminaRate);
+            StartGame();
         }
     }
 
-    //called when a player leaves the game
-    public void OnPlayerDisconnect(int clientID)
+    void StartGame()
     {
-        Player.localPlayer.RpcBroadcastMessage($"{players[clientID]} left the game!");
+        string role = (gameMode == Mode.Reverse) ? "runner" : "catcher";
 
-        if(clientID == chosenPlayer)
+        //pick catcher from players
+        chosenPlayer = players.Keys.ElementAt(rng.Next(players.Count));
+
+        Player.localPlayer.RpcStartGame($"{players[chosenPlayer]} is the {role}", gameMode, settings.catchDistance, settings.staminaRate * 4);
+    }
+
+    //called when a player leaves the game
+    public void OnPlayerDisconnect(NetworkConnection conn)
+    {
+        if(conn == Player.localPlayer.connectionToClient)
+        {
+            return;
+        }
+
+        Player.localPlayer.RpcBroadcastMessage($"{players[conn]} left the game!");
+
+        //catcher quit
+        if(conn == chosenPlayer)
         {
             Player.localPlayer.RpcOnGameEnd("GAME OVER");
         }
-        players.Remove(clientID);
+
+        //one player left on zombies
+        else if(gameMode == Mode.Zombies && players.Count == 1)
+        {
+            Player.localPlayer.RpcOnGameEnd($"{players.Values.ElementAt(0)} won the match!");
+            return;
+        }
+
+        //no players left on elimination
+        else if(gameMode == Mode.Elimination && players.Count == 0)
+        {
+            Player.localPlayer.RpcOnGameEndElimination(true);
+        }
+
+        players.Remove(conn);
     }
 
     #region start
@@ -133,14 +166,14 @@ public class Game : MonoBehaviour
     {
         catcher.isCatcher = false;
         caught.isCatcher = true;
-        chosenPlayer = caught.clientID;
+        chosenPlayer = caught.connectionToClient;
         caught.RpcOnCaught(catcher);
     }
 
     void ZombiesCatch(Player catcher, Player caught)
     {
         caught.isCatcher = true;
-        players.Remove(caught.clientID);
+        players.Remove(caught.connectionToClient);
         if (players.Count == 1)
         {
             Player.localPlayer.RpcOnGameEnd($"{players.Values.ElementAt(0)} won the match!");
@@ -152,12 +185,12 @@ public class Game : MonoBehaviour
 
     void EliminationCatch(Player catcher, Player caught)
     {
-        players.Remove(caught.clientID);
+        players.Remove(caught.connectionToClient);
         caught.RpcOnCaught(catcher);
 
         if (players.Count == 0)
         {
-            Player.localPlayer.RpcOnGameEnd("C");
+            Player.localPlayer.RpcOnGameEndElimination(true);
         }
     }
 
@@ -165,7 +198,7 @@ public class Game : MonoBehaviour
     {
         catcher.isCatcher = false;
         caught.isCatcher = true;
-        chosenPlayer = catcher.clientID;
+        chosenPlayer = catcher.connectionToClient;
         caught.RpcOnCaught(catcher);
         Player.localPlayer.RpcBroadcastMessage($"{players[chosenPlayer]} is now runner");
     }

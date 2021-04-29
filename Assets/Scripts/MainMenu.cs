@@ -4,16 +4,26 @@ using UnityEngine.UI;
 //create button and join input field script
 public class MainMenu : MonoBehaviour
 {
+    [Header("GameObject Parents")]
     [SerializeField] private GameObject menuParent;
     [SerializeField] private GameObject colourParent;
+
+    [Header("Input Fields")]
     [SerializeField] private InputField join;
+    [SerializeField] private Slider mouseSensitivitySlider;
+
+    [Header("Text Objects")]
     [SerializeField] private Text usernameText;
     [SerializeField] private Text errorTextMenu;
     [SerializeField] private Text errorTextColours;
+    [SerializeField] private Text mouseSensitivityText;
+
+    [Header("Images")]
     [SerializeField] private Image colour1Image;
     [SerializeField] private Image colour2Image;
 
     public static MainMenu singleton;
+    private ClientManager client;
     private bool fullScreen = true;
     private int colour1, colour2;
 
@@ -24,6 +34,7 @@ public class MainMenu : MonoBehaviour
     void Start()
     {
         singleton = this;
+        client = ClientManager.singleton;
         errorTextMenu.text = "";
         errorTextColours.text = "";
         DisplayColours();
@@ -36,7 +47,7 @@ public class MainMenu : MonoBehaviour
         }
 
         //set username text
-        usernameText.text = "Signed in as: " + ClientManager.singleton.username;
+        usernameText.text = "Signed in as: " + client.username;
     }
 
     void Update()
@@ -46,6 +57,8 @@ public class MainMenu : MonoBehaviour
             fullScreen = !fullScreen;
             Screen.fullScreen = fullScreen;
         }
+
+        mouseSensitivityText.text = mouseSensitivitySlider.value.ToString();
     }
 
     #region EnterRoom
@@ -140,17 +153,19 @@ public class MainMenu : MonoBehaviour
 
     void DisplayColours()
     {
-        colour1 = ClientManager.singleton.colour1;
-        colour2 = ClientManager.singleton.colour2;
+        colour1 = client.colour1;
+        colour2 = client.colour2;
         colour1Image.color = colours[colour1];
         colour2Image.color = colours[colour2];
+        mouseSensitivitySlider.value = RoomManager.singleton.mouseSensitivity;
     }
 
     public void ApplyColours()
     {
-        ClientManager.singleton.colour1 = colour1;
-        ClientManager.singleton.colour2 = colour2;
+        client.colour1 = colour1;
+        client.colour2 = colour2;
         ClientSend.SetColours(colour1, colour2);
+        RoomManager.singleton.mouseSensitivity = mouseSensitivitySlider.value;
     }
 
     public void SetErrorTextColours(string msg)
@@ -162,6 +177,6 @@ public class MainMenu : MonoBehaviour
 
     public void LogOut()
     {
-        ClientManager.singleton.LogOut();
+        client.LogOut();
     }
 }

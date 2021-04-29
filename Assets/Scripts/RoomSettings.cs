@@ -42,7 +42,7 @@ public class RoomSettings : MonoBehaviour
     {
         if(gameMode == Mode.Classic)
         {
-            gameMode = Mode.Reverse;
+            gameMode = Mode.Random;
         }
         else
         {
@@ -54,7 +54,7 @@ public class RoomSettings : MonoBehaviour
 
     public void GameModeRight()
     {
-        if (gameMode == Mode.Reverse)
+        if (gameMode == Mode.Random)
         {
             gameMode = Mode.Classic;
         }
