@@ -1,4 +1,9 @@
-﻿using System;
+﻿//manages the login and register menu UI
+//performs checks for the various inputs and communicates the operations with the server
+//after receiving a response, either proceeds to th title screen or presents an error message
+
+
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Text;
@@ -177,9 +182,9 @@ public class LoginMenu : MonoBehaviour {
         Register_ErrorText.text = text;
     }
 
+    //simple encrypting function
     static string Hash(string password)
     {
-        //simple encrypting function
         MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
         UTF8Encoding utf8 = new UTF8Encoding();
         byte[] data = md5.ComputeHash(utf8.GetBytes(password));

@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿//this class is the interface between the networking scripts and the unity game scene
+//a single gameobject runs an instance of this class, similar to the main program on the server side
+//calls the Client.Start() method and updates a thread it opens using the unity MonoBehavior methods (start, update)
+
+
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using Mirror;
 

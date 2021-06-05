@@ -1,4 +1,8 @@
-﻿using System;
+﻿//thread class
+//used to queue and execute commands
+
+
+using System;
 using System.Collections.Generic;
 
 public class ThreadManager

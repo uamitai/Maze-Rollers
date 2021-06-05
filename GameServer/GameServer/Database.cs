@@ -1,4 +1,8 @@
-﻿using System;
+﻿//class that communicates with the database
+//includes methods executing SELECT, INSERT, UPDATE queries for various purposes
+
+
+using System;
 using System.Data.SqlClient;
 
 namespace GameServer
@@ -12,6 +16,9 @@ namespace GameServer
 
         const string connString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename='C:\\Users\\USER\\Desktop\\unity\\Maze Rollers\\GameServer\\GameServer\\GameDB.mdf';Integrated Security=True";
         
+        //search entry in database with given username
+        //place entry data in out paameters
+        //return success at operation
         public static bool GetData(out int id, string username, out string password, out int colour1, out int colour2)
         {
             //create connection objects
@@ -54,7 +61,8 @@ namespace GameServer
             }
         }
 
-        //create entry for user
+        //create entry for user with username and password
+        //return success at operation
         public static bool RegisterUser(string username, string password)
         {
             //create query and connection objects
@@ -84,6 +92,9 @@ namespace GameServer
             }
         }
 
+        //search entry with given id
+        //update both colour records
+        //return success at operation
         public static bool SetColours(int id, int colour1, int colour2)
         {
             //create connection objects

@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿//disconnected screen script
+//display text on screen from the game manager
+//move to title screen on button press
+
+
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Mirror;

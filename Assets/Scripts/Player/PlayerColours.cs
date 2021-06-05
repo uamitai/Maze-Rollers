@@ -1,4 +1,9 @@
-﻿using UnityEngine;
+﻿//script that applies two colours on the player model mesh
+//this is done via dynamically creating a material and texture
+//sets the texture's pixels as the given colours and places the texture onto the material 
+
+
+using UnityEngine;
 
 public class PlayerColours : MonoBehaviour
 {

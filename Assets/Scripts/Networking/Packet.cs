@@ -1,4 +1,10 @@
-﻿using System;
+﻿//packet object class
+//includes enum definitions for packet types, used to identify the command to execute
+//has methods to read and write packet data
+
+
+
+using System;
 using System.Text;
 using System.Collections.Generic;
 

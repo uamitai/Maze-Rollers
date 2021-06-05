@@ -1,4 +1,9 @@
-﻿using System;
+﻿//class that handles communication with the server
+//has methods for connection, sending and receiving data
+//reads packets and executes commands using the thread opened on the main program
+
+
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Net.Sockets;
@@ -8,7 +13,7 @@ public static class Client
     public static TCP tcp;
     public static int clientID;
 
-    public static string ip = "79.178.199.212";
+    public static string ip = "79.177.196.159"; //change according to server IP
     public static int port = 420;
     public static int dataBufferSize = 4096;
 

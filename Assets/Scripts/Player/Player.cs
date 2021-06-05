@@ -1,4 +1,10 @@
-﻿using System.Collections;
+﻿//main player script to execute commands and clientRpc's
+//enables/disables the player children and components (only local player has playercontroller enabled, if catcher then also playercatch)
+//syncs variables for the player across all connected clients, for example the username
+//also rotates the nameplate towards the local player in the update method
+
+
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using Mirror;
@@ -11,7 +17,7 @@ public class Player : NetworkBehaviour
     [SyncVar(hook = nameof(SetCatcher))] public bool isCatcher;
     [SyncVar(hook = nameof(DisplayTime))] private float timeRemaining;
 
-    //references to player gameobject
+    [Header("References to player GameObject")]
     [SerializeField] private GameObject UIPrefab;
     [SerializeField] private GameObject model;
     [SerializeField] public Transform cam;

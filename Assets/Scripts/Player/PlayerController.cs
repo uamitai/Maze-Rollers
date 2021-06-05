@@ -1,19 +1,24 @@
-﻿using UnityEngine;
+﻿//the playercontroller script influences the player's movement
+//takes the player input and calculates velocity every frame
+//controlls the position and rotation of the player, as well as rotates the camera and rolls the ball
 
-//player's basic movement, camera, etc.
+
+using UnityEngine;
+
 public class PlayerController : MonoBehaviour
 {
+    [Header("Movement Parameters")]
     [SerializeField] public float speed;
     [SerializeField] private float mouseSensitivity;
     [SerializeField] private float camLimit;
     [SerializeField] private float rollSpeed;
-    [SerializeField] private Transform model;
 
-    //stamina
+    [Header("")]
+    [SerializeField] private Transform model;
     [SerializeField] public float staminaSpeed;
     [SerializeField] private float speedMultiplier;
-    private float stamina;
 
+    private float stamina;
     private Rigidbody rb;
     private float mouseX, rotation;
     private Vector3 x, z, vel;

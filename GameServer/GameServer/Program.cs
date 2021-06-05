@@ -1,12 +1,19 @@
-﻿using System;
+﻿//main program to execute on server side
+//starts the server with parameters
+//starts a thread and updates it in a loop
+
+
+using System;
 using System.Threading;
 
 namespace GameServer
 {
     class Program
     {
-        public const int TICKS_PER_SECOND = 30;
-        public const int TICKRATE = 1000 / TICKS_PER_SECOND;
+        const int TICKS_PER_SECOND = 30;
+        const int TICKRATE = 1000 / TICKS_PER_SECOND;
+        const int PORT = 420;
+        const int MAX_CLIENTS = 100;
 
         private static bool isRunning = false;
 
@@ -23,7 +30,7 @@ namespace GameServer
         static void Main(string[] args)
         {
             Console.Title = "Game Server";
-            Server.Start(420, 100);
+            Server.Start(PORT, MAX_CLIENTS);
             isRunning = true;
 
             //start thread

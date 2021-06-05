@@ -1,9 +1,13 @@
-﻿using System.Collections;
+﻿//handles all the HUD elements present during the main game:
+//the pause menu, caught screen, kill feed and sprint duration meter
+//contains coroutines to time certain events such as the initial countdown and respawning
+
+
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using Mirror;
 
-//manages UI
 public class PlayerUI : MonoBehaviour
 {
     [Header("Screens")]
@@ -48,14 +52,10 @@ public class PlayerUI : MonoBehaviour
 
     #region coroutines
 
-    //displays series of messages at start of game
+    //receives gamemode and message containing catcher name
+    //displays series of messages before the game starts
     public IEnumerator CountDown(Mode gamemode, string msg)
     {
-        if(!countdownText.enabled)
-        {
-            yield break;
-        }
-
         //display gamemode
         countdownText.text = $"{gamemode} Tag!";
         yield return new WaitForSeconds(2f);

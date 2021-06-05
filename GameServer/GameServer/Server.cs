@@ -1,4 +1,9 @@
-﻿using System;
+﻿//server class
+//initialises server and handles incoming client connections
+//contains dictionaries for clients, commands and rooms
+
+
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -11,8 +16,8 @@ namespace GameServer
 
         public static int maxConns { get; private set; }
 
-        public static Dictionary<int, Client> clients = new Dictionary<int, Client>(); //clientID -> client
-        public static Dictionary<int, PacketManager> onPacketReceive; //packetID -> command
+        public static Dictionary<int, Client> clients = new Dictionary<int, Client>();           //clientID -> client
+        public static Dictionary<int, PacketManager> onPacketReceive;                            //packetID -> command
         public static Dictionary<string, string> activeRooms = new Dictionary<string, string>(); //roomID -> host ip
         public delegate void PacketManager(int clientID, Packet packet);
 

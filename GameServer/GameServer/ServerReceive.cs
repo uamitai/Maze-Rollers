@@ -1,4 +1,9 @@
-﻿using System;
+﻿//server side commands
+//called by client class for every packet received
+//commands are identified by an enum found in the packet, as defined in the packet class
+
+
+using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -21,6 +26,7 @@ namespace GameServer
             {
                 //remote client
                 ip = packet.ReadString();
+                ip = IPAddress.Parse(ip).MapToIPv4().ToString();
             }
 
             Server.clients[clientID].ip = ip;

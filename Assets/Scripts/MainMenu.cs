@@ -1,7 +1,11 @@
-﻿using UnityEngine;
+﻿//title scene main script, contains array with available player colours
+//calls ServerSend for Create and Join buttons
+//also handles the colour menu
+
+
+using UnityEngine;
 using UnityEngine.UI;
 
-//create button and join input field script
 public class MainMenu : MonoBehaviour
 {
     [Header("GameObject Parents")]
@@ -13,7 +17,6 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private Slider mouseSensitivitySlider;
 
     [Header("Text Objects")]
-    [SerializeField] private Text usernameText;
     [SerializeField] private Text errorTextMenu;
     [SerializeField] private Text errorTextColours;
     [SerializeField] private Text mouseSensitivityText;
@@ -45,9 +48,6 @@ public class MainMenu : MonoBehaviour
             Destroy(Game.singleton.gameObject);
             Game.singleton = null;
         }
-
-        //set username text
-        usernameText.text = "Signed in as: " + client.username;
     }
 
     void Update()

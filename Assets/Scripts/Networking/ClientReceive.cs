@@ -1,4 +1,11 @@
-﻿using UnityEngine;
+﻿//client side functions
+//called by client class for every packet received
+//commands are identified by an enum found in the packet, as defined in the packet class
+
+
+
+using System.Net;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using Mirror;
 
@@ -30,10 +37,17 @@ public static class ClientReceive
     {
         NetworkManager manager = NetworkManager.singleton;
         string IP = packet.ReadString();
+        IPAddress address;
 
         if(IP == "")
         {
             MainMenu.singleton.SetErrorTextMenu("Error: Room Not Found");
+            return;
+        }
+
+        if(!IPAddress.TryParse(IP, out address))
+        {
+            MainMenu.singleton.SetErrorTextMenu("Error: Received Invalid IP Address");
             return;
         }
 

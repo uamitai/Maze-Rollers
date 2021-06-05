@@ -1,6 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿//this code writes the parameters for the packets sent to the client
+//each method, apart from TcpSendData, corresponds to a method implemented on the client side
+//parameters given to the packet act as arguments to client side functions
+
 
 namespace GameServer
 {

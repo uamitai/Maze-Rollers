@@ -1,4 +1,9 @@
-﻿using System;
+﻿//class that handles a connected client
+//has methods for connection, sending and receiving data
+//reads packets and executes commands using the thread opened on the main program
+
+
+using System;
 using System.Net.Sockets;
 
 namespace GameServer

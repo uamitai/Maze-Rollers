@@ -1,7 +1,11 @@
-﻿using UnityEngine;
+﻿//the catching mechanic script
+//implemented by sending raycast objects in the direction in front of the player
+//if the raycast hits a remote player and the mouse is clicked, sends a command to the server to make a catch
+
+
+using UnityEngine;
 using Mirror;
 
-//the player catching mechanic
 [RequireComponent(typeof(Player))]
 public class PlayerCatch : NetworkBehaviour
 {

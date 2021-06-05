@@ -1,4 +1,9 @@
-﻿using System.Collections.Generic;
+﻿//the main game manager script
+//methods for OnStartGame and OnCatch are selected according to gamemode
+//keeps track of connected players
+
+
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Mirror;
@@ -15,6 +20,7 @@ public enum Mode
 public class Game : MonoBehaviour
 {
     public Dictionary<NetworkConnection, string> players = new Dictionary<NetworkConnection, string>();
+    public Dictionary<NetworkConnection, string> playersAlive = new Dictionary<NetworkConnection, string>();
 
     public static Game singleton;
 
@@ -91,6 +97,7 @@ public class Game : MonoBehaviour
     public void AddPlayer(NetworkConnection conn, string username)
     {
         players.Add(conn, username);
+        playersAlive.Add(conn, username);
 
         //start game
         if(players.Count == settings.numPlayers)
@@ -118,6 +125,8 @@ public class Game : MonoBehaviour
         }
 
         Player.localPlayer.RpcBroadcastMessage($"{players[conn]} left the game!");
+        players.Remove(conn);
+        playersAlive.Remove(conn);
 
         //catcher quit
         if(conn == chosenPlayer)
@@ -126,19 +135,17 @@ public class Game : MonoBehaviour
         }
 
         //one player left on zombies
-        else if(gameMode == Mode.Zombies && players.Count == 1)
+        else if(gameMode == Mode.Zombies && playersAlive.Count == 1)
         {
-            Player.localPlayer.RpcOnGameEnd($"{players.Values.ElementAt(0)} won the match!");
+            Player.localPlayer.RpcOnGameEnd($"{playersAlive.Values.ElementAt(0)} won the match!");
             return;
         }
 
         //no players left on elimination
-        else if(gameMode == Mode.Elimination && players.Count == 0)
+        else if(gameMode == Mode.Elimination && playersAlive.Count == 0)
         {
             Player.localPlayer.RpcOnGameEndElimination(true);
         }
-
-        players.Remove(conn);
     }
 
     #region start
@@ -150,7 +157,7 @@ public class Game : MonoBehaviour
 
     void ZombiesStart()
     {
-        players.Remove(chosenPlayer);
+        playersAlive.Remove(chosenPlayer);
     }
 
     void EliminationStart()
@@ -173,10 +180,12 @@ public class Game : MonoBehaviour
     void ZombiesCatch(Player catcher, Player caught)
     {
         caught.isCatcher = true;
-        players.Remove(caught.connectionToClient);
-        if (players.Count == 1)
+        playersAlive.Remove(caught.connectionToClient);
+
+        chosenPlayer = null;
+        if (playersAlive.Count == 1)
         {
-            Player.localPlayer.RpcOnGameEnd($"{players.Values.ElementAt(0)} won the match!");
+            Player.localPlayer.RpcOnGameEnd($"{playersAlive.Values.ElementAt(0)} won the match!");
             return;
         }
 
@@ -185,10 +194,10 @@ public class Game : MonoBehaviour
 
     void EliminationCatch(Player catcher, Player caught)
     {
-        players.Remove(caught.connectionToClient);
+        playersAlive.Remove(caught.connectionToClient);
         caught.RpcOnCaught(catcher);
 
-        if (players.Count == 0)
+        if (playersAlive.Count == 0)
         {
             Player.localPlayer.RpcOnGameEndElimination(true);
         }
@@ -200,7 +209,7 @@ public class Game : MonoBehaviour
         caught.isCatcher = true;
         chosenPlayer = catcher.connectionToClient;
         caught.RpcOnCaught(catcher);
-        Player.localPlayer.RpcBroadcastMessage($"{players[chosenPlayer]} is now runner");
+        Player.localPlayer.RpcBroadcastMessage($"{playersAlive[chosenPlayer]} is now runner");
     }
 
     #endregion
