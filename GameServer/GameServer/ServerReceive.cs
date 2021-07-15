@@ -13,7 +13,7 @@ namespace GameServer
     {
         private const int ROOM_ID_LENGTH = 5;
         private const string CHARACTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ123456789";
-        private const string DEFAULT_GATEWAY = "192.168.14.1";
+        private const string DEFAULT_GATEWAY = "172.16.255.254";
 
         //confirm client has connected
         public static void WelcomeReceived(int clientID, Packet packet)

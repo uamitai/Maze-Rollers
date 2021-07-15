@@ -7,21 +7,29 @@ using UnityEngine;
 
 public class PlayerColours : MonoBehaviour
 {
+    //editor parameters
     [SerializeField] private Shader shader;
     [SerializeField] private Texture specularGloss;
 
     private Renderer rend;
-
+    
+    //texture size constants
     private const int textureWidth = 33;
     private const int textureHeight = 33;
 
     //create a new material for player and set textures
     public void RenderMaterial(Color colour1, Color colour2)
     {
+        //get renderer component
         rend = GetComponent<Renderer>();
 
+        //create new material
         rend.material = new Material(shader);
+
+        //set main texture
         rend.material.mainTexture = CreateTexture(colour1, colour2);
+        
+        //tidy up
         rend.material.SetTexture("_SpecGlossMap", specularGloss);
         rend.material.color = Color.gray;
     }
@@ -29,12 +37,15 @@ public class PlayerColours : MonoBehaviour
     //creates albedo texture using two colors
     Texture CreateTexture(Color colour1, Color colour2)
     {
+        //create new texture
         Texture2D texture = new Texture2D(textureWidth, textureHeight);
 
+        //colour texture
         SetPixels(texture, 0, colour1);
         SetPixels(texture, textureWidth / 3, Color.black);
         SetPixels(texture, 2 * textureWidth / 3, colour2);
 
+        //apply and return
         texture.Apply();
         return texture;
     }

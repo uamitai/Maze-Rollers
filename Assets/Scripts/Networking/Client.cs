@@ -13,7 +13,7 @@ public static class Client
     public static TCP tcp;
     public static int clientID;
 
-    public static string ip = "79.177.196.159"; //change according to server IP
+    public static string ip = "172.16.16.118"; //change according to server IP
     public static int port = 420;
     public static int dataBufferSize = 4096;
 
